@@ -19,11 +19,13 @@ from bpy.app.handlers import persistent
 from . import ui
 from . import operators
 from . import midi_connection
+from . import midi_nodes
 
 classes = [
     ui.MIDINodePanel,
     operators.MIDINodeRegisterToValueNode,
     operators.MIDINodeConnect,
+    operators.MIDINodeTeachNode,
 ]
 
 
@@ -34,8 +36,10 @@ def pre_frame_change_handler(scn):
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
+    bpy.app.handlers.frame_change_pre.append(pre_frame_change_handler)
 
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
+    midi_connection.midi_connection.stopListen()
 

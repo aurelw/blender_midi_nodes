@@ -19,5 +19,7 @@ class MIDINodePanel(Panel):
         layout = self.layout
         row = layout.row()
         row.operator('node.midi_connect_to_device', text="Connect")
+        row = layout.row()
         row.operator('node.midi_node_register_to_value_node', text="Activate Node")
+        row.operator('node.midi_node_teach', text='Teach')
 
