@@ -34,9 +34,18 @@ class MIDINodePanel(Panel):
                 row.operator('node.midi_node_activate', text='Activate')
         ### node properties ###
         if 'midi_ctrld' in node and node['midi_ctrld']:
+            # scaling
             box = layout.box()
             col = box.column()
+            col.label(text="Scale Value")
             col.prop(node, '["midi_do_scale_value"]')
             col.prop(node, '["midi_scale_min"]')
             col.prop(node, '["midi_scale_max"]')
+            # decay filter
+            box = layout.box()
+            col = box.column()
+            col.label(text="Decay Filter")
+            col.prop(node, '["midi_do_decay_filter"]')
+            col.prop(node, '["midi_decay_hold_peak_frames"]')
+            col.prop(node, '["midi_decay_rate"]')
 
