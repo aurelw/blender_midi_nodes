@@ -105,7 +105,11 @@ def _updateNodeGroup(node_group):
                 if 'pad_id' in node:
                     pad_id = node['pad_id']
                     if pad_id in con.id_to_value:
-                        value = con.id_to_value[pad_id]
+                        with con.id_to_value_lock:
+                            if len(con.id_to_value[pad_id]) == 2:
+                                value = con.id_to_value[pad_id].pop(0)
+                            else:
+                                value = con.id_to_value[pad_id][0]
                         m_value = applyNodeModifiersOnValue(node, value)
                         node.outputs['Value'].default_value = m_value
 

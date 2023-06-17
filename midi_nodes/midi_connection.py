@@ -15,12 +15,14 @@ class MIDIConnection:
         self._teaching_pad = None
         # for CHANNEL_AFTERTOUCH
         self.id_to_value = {}
+        self.id_to_value_lock = threading.Lock()
         # misc config
         self._try_n_connects = 10
 
 
     def clearData(self):
-        self.id_to_value = {}
+        with self.id_to_value_lock:
+            self.id_to_value = {}
 
     def listen(self):
         if self._listen_thread:
@@ -74,22 +76,32 @@ class MIDIConnection:
                             cid = msg.channel
                         else:
                             cid = msg.note
-                        self.id_to_value[cid] = msg.velocity
+                        with self.id_to_value_lock:
+                            self.id_to_value[cid] = [msg.velocity]
                     if msg.type == 'note_off':
                         ctrl_type = 'PAD'
                         if self.encoding_mode == 'CHANNEL_AFTERTOUCH':
                             cid = msg.channel
                         else:
                             cid = msg.note
-                        self.id_to_value[cid] = msg.velocity
+                        with self.id_to_value_lock:
+                            # for a note off we should not overwrite the last
+                            # value as it could be missed before processing the
+                            # next frame.
+                            if cid in self.id_to_value:
+                                self.id_to_value[cid].append(msg.velocity)
+                            else:
+                                self.id_to_value[cid] = [msg.velocity]
                     elif msg.type == 'aftertouch':
                         if self.encoding_mode == 'CHANNEL_AFTERTOUCH':
                             cid = msg.channel
-                        self.id_to_value[cid] = msg.value
+                        with self.id_to_value_lock:
+                            self.id_to_value[cid] = [msg.value]
                     elif msg.type == 'control_change':
                         ctrl_type = 'CONTROL'
                         cid = msg.control + 100000
-                        self.id_to_value[cid] = msg.value
+                        with self.id_to_value_lock:
+                            self.id_to_value[cid] = [msg.value]
                     # handle teaching mode
                     if self._flag_get_teaching_pad:
                         self._flag_get_teaching_pad = False
