@@ -25,6 +25,8 @@ classes = [
     ui.MIDINodePanel,
     operators.MIDINodeRegisterToValueNode,
     operators.MIDINodeConnect,
+    operators.MIDINodeActivateNode,
+    operators.MIDINodeDeactivateNode,
     operators.MIDINodeTeachNode,
 ]
 
@@ -33,10 +35,16 @@ classes = [
 def pre_frame_change_handler(scn):
     midi_nodes.updateAllNodes()
 
+@persistent
+def post_file_load_handler(scn):
+    for node_group in bpy.data.node_groups:
+        midi_nodes.upgradePropsOnNodeGroup(node_group)
+
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
     bpy.app.handlers.frame_change_pre.append(pre_frame_change_handler)
+    bpy.app.handlers.load_post.append(post_file_load_handler)
 
 def unregister():
     for cls in reversed(classes):
