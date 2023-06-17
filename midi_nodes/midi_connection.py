@@ -15,6 +15,8 @@ class MIDIConnection:
         self._teaching_pad = None
         # for CHANNEL_AFTERTOUCH
         self.id_to_value = {}
+        # misc config
+        self._try_n_connects = 10
 
 
     def clearData(self):
@@ -24,10 +26,21 @@ class MIDIConnection:
         if self._listen_thread:
             return
         # set device to listen on
-        devices = mido.get_input_names()
-        print("DEVICES::::::", devices)
-        self._input_name = [name for name in devices if 'MPD' in name][0]
-        print("MIDI INPUT:", self._input_name)
+        is_connected = False
+        for i in range(self._try_n_connects):
+            try:
+                devices = mido.get_input_names()
+                self._input_name = [name for name in devices if 'MPD' in name][0]
+                print("MIDI INPUT:", self._input_name)
+            except:
+                if i+1 < self._try_n_connects:
+                    print("[ERROR] connecting.... retry...")
+                    time.sleep(1)
+                    continue
+                else:
+                    print("[ERROR] Cannot list MIDI devices.")
+                    return
+            break
         # start thread
         self._listen_thread = threading.Thread(
                 target=self._runListen)
