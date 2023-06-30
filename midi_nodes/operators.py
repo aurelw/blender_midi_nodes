@@ -18,6 +18,12 @@ class MIDINodeRegisterToValueNode(Operator):
                 active_node.label = "Value [MIDI]"
             else:
                 active_node.label = active_node.label + " [MIDI]"
+        if active_node.type == 'SWITCH':
+            midi_nodes.initPropsOnNode(active_node)
+            if active_node.label == '':
+                active_node.label = "Switch [MIDI]"
+            else:
+                active_node.label = active_node.label + " [MIDI]"
         return {'FINISHED'}
 
 
@@ -64,6 +70,7 @@ class MIDINodeConnect(Operator):
 
     def execute(self, context):
         midi_connection.midi_connection.listen()
+        midi_connection.midi_apc.listen()
         return {'FINISHED'}
 
 
@@ -79,7 +86,11 @@ class MIDINodeTeachNode(Operator):
         active_node = midi_nodes.getActiveNode()
         if 'midi_ctrld' in active_node and active_node['midi_ctrld']:
             active_node.color = self.color_teaching
-            teach = midi_connection.midi_connection.getTeachingPad()
+            if active_node.type == 'VALUE':
+                teach = midi_connection.midi_connection.getTeachingPad()
+            elif active_node.type == 'SWITCH':
+                print("waaaahhhhh")
+                teach = midi_connection.midi_apc.getTeachingPad()
             active_node['pad_id'] = teach[0]
             active_node['midi_ctrl_type'] = teach[1]
             # also active node right after teaching
