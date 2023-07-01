@@ -151,19 +151,17 @@ class MIDIConnection:
                 # handle output 
                 if not self._output_msg_queue.empty():
                     out_msg = self._output_msg_queue.get()
-                    print("############################## send message", out_msg)
-                    print("##############################", out_msg.bytes())
                     midi_output.send(out_msg)
 
-    def apc_set_status_pad(self, pad_id, is_active):
-        print("is active apc:", is_active)
+    def apc_set_status_pad(self, pad_id, is_active, color_value=38):
         m = mido.Message('note_on')
         if is_active:
             led_byte = '99'
         else:
             led_byte = '91'
         note_byte = hex(pad_id)[2:].rjust(2, '0')
-        hex_str = led_byte + ' ' + note_byte + ' 38'
+        color_byte = hex(color_value)[2:].rjust(2, '0')
+        hex_str = led_byte + ' ' + note_byte + ' ' + color_byte
         m = m.from_hex(hex_str)
         self._output_msg_queue.put(m)
         

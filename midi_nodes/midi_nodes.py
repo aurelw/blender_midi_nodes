@@ -1,6 +1,7 @@
 import bpy
 
 from . import midi_connection
+from . import apc_mini_colors
 
 def getActiveNode():
     def getActiveNodeFromTree(tree):
@@ -133,7 +134,10 @@ def _updateNodeGroup(node_group):
                                 switch_state = not node.inputs[1].default_value
                                 node.inputs[1].default_value = switch_state
                                 # set pad led
-                                apc.apc_set_status_pad(pad_id, switch_state)
+                                color_id = apc_mini_colors.blenderColorToAPCMiniColor(
+                                                node.color)
+                                print("COLOR ID TO APC MINI:", color_id)
+                                apc.apc_set_status_pad(pad_id, switch_state, color_id)
 
 
 def updateAllNodes():
