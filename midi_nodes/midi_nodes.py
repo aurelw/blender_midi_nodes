@@ -6,7 +6,7 @@ from . import apc_mini_colors
 def getActiveNode():
     def getActiveNodeFromTree(tree):
         node = tree.nodes.active
-        if node.type == 'GROUP':
+        if node and node.type == 'GROUP':
             return getActiveNodeFromTree(node.node_tree)
         else:
             return node
@@ -32,12 +32,12 @@ def upgradePropsOnNode(node):
             node['midi_scale_min'] = 0.0
             node.id_properties_ensure()
             property_manager = node.id_properties_ui('midi_scale_min')
-            property_manager.update(min=0)
+            #property_manager.update(min=0)
         if not 'midi_scale_max' in node:
             node['midi_scale_max'] = 127.0
             node.id_properties_ensure()
             property_manager = node.id_properties_ui('midi_scale_max')
-            property_manager.update(min=0)
+            #property_manager.update(min=0)
         ## decay
         if not 'midi_do_decay_filter' in node:
             node['midi_do_decay_filter'] = False
@@ -140,5 +140,27 @@ def _updateNodeGroup(node_group):
                                 apc.apc_set_status_pad(pad_id, switch_state, color_id)
 
 
+def _initSwitchNode(node):
+    apc = midi_connection.midi_apc
+    if 'midi_ctrld' in node and node['midi_ctrld'] and node['midi_active']:
+        color_id = apc_mini_colors.blenderColorToAPCMiniColor(node.color)
+        switch_state = node.inputs[1].default_value
+        pad_id = node['pad_id']
+        apc.apc_set_status_pad(pad_id, switch_state, color_id)
+
+def _initNodeGroupAfterCon(node_group):
+    for node in node_group.nodes:
+        if node.type == 'GROUP':
+            _initNodeGroupAfterCon(node.node_tree)
+        elif node.type == 'SWITCH':
+            _initSwitchNode(node)
+
+
 def updateAllNodes():
     _updateNodeGroup(bpy.data.node_groups[0])
+
+def initAllNodesAfterCon():
+    apc = midi_connection.midi_apc
+    _initNodeGroupAfterCon(bpy.data.node_groups[0])
+    apc.flushOutputQueue()
+

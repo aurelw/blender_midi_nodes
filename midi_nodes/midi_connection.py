@@ -19,6 +19,7 @@ class MIDIConnection:
         self._listen_thread = None
         self._flag_get_teaching_pad = False
         self._teaching_pad = None
+        self._midi_output = None
         # for detect_mode = VALUE
         self.id_to_value = {}
         self.id_to_value_lock = threading.Lock()
@@ -141,6 +142,7 @@ class MIDIConnection:
     def _runListen(self):
         with mido.open_input(self._input_name) as midi_input,\
              mido.open_output(self._input_name) as midi_output:
+            self._midi_output = midi_output
             while self._keep_running:
                 msg = midi_input.receive()
                 if msg:
@@ -153,6 +155,7 @@ class MIDIConnection:
                     out_msg = self._output_msg_queue.get()
                     midi_output.send(out_msg)
 
+
     def apc_set_status_pad(self, pad_id, is_active, color_value=38):
         m = mido.Message('note_on')
         if is_active:
@@ -164,6 +167,13 @@ class MIDIConnection:
         hex_str = led_byte + ' ' + note_byte + ' ' + color_byte
         m = m.from_hex(hex_str)
         self._output_msg_queue.put(m)
+
+
+    def flushOutputQueue(self):
+        while not self._output_msg_queue.empty():
+            out_msg = self._output_msg_queue.get()
+            self._midi_output.send(out_msg)
+
         
 
 

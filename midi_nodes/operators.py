@@ -1,4 +1,7 @@
 import bpy
+
+import time
+
 from bpy.types import Operator
 
 from . import midi_connection
@@ -71,6 +74,8 @@ class MIDINodeConnect(Operator):
     def execute(self, context):
         midi_connection.midi_connection.listen()
         midi_connection.midi_apc.listen()
+        time.sleep(1.0)
+        midi_nodes.initAllNodesAfterCon()
         return {'FINISHED'}
 
 
@@ -89,7 +94,6 @@ class MIDINodeTeachNode(Operator):
             if active_node.type == 'VALUE':
                 teach = midi_connection.midi_connection.getTeachingPad()
             elif active_node.type == 'SWITCH':
-                print("waaaahhhhh")
                 teach = midi_connection.midi_apc.getTeachingPad()
             active_node['pad_id'] = teach[0]
             active_node['midi_ctrl_type'] = teach[1]
