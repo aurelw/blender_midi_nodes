@@ -10,7 +10,8 @@ def getActiveNode():
             return getActiveNodeFromTree(node.node_tree)
         else:
             return node
-    return getActiveNodeFromTree(bpy.data.node_groups[0])
+    return bpy.context.active_node
+    #return getActiveNodeFromTree(bpy.data.node_groups[0])
 
 
 def upgradePropsOnNode(node):
@@ -157,10 +158,13 @@ def _initNodeGroupAfterCon(node_group):
 
 
 def updateAllNodes():
-    _updateNodeGroup(bpy.data.node_groups[0])
+    #FIXME this updates groups multiple times possibly
+    for node_group in bpy.data.node_groups:
+        _updateNodeGroup(node_group)
 
 def initAllNodesAfterCon():
     apc = midi_connection.midi_apc
-    _initNodeGroupAfterCon(bpy.data.node_groups[0])
+    for node_group in bpy.data.node_groups:
+        _initNodeGroupAfterCon(node_group)
     apc.flushOutputQueue()
 
