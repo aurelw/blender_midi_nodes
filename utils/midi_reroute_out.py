@@ -2,16 +2,22 @@
 
 import mido
 
-transpose_v = -10
-key_mapping = {48 : 120,
-               49 : 125,
+transpose_v = 0
+key_mapping = {37 : 50,
+               39 : 57,
+               38 : 62,
+               40 : 34,
+               48 : 70,
+               49 : 79,
                44 : 50}
 
 
 
 
 def main():
-    s1_out = mido.open_output('S-1:S-1 MIDI IN 20:0')
+    mido.get_input_names()
+    s1_name = [name for name in mido.get_input_names() if "S-1" in name][0]
+    s1_out = mido.open_output(s1_name)
     mpd_in = mido.open_input('MPD218:MPD218 Port A 16:0')
     # prepare out  messages
     m_on = mido.Message('note_on')
