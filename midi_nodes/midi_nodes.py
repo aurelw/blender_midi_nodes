@@ -131,9 +131,21 @@ def _updateNodeGroup(node_group):
                         if pad_id in apc.id_to_note_on_evt:
                             if len(apc.id_to_note_on_evt[pad_id]) > 0:
                                 apc.id_to_note_on_evt[pad_id].pop(0)
+                                ## Based on the input type of the switch node
+                                ## the switch input is in a different input slot.
+                                ## possible FIXME
+                                if node.input_type == 'GEOMETRY':
+                                    switch_input_socket = 1
+                                    print("input type geometry")
+                                elif node.input_type == 'FLOAT':
+                                    switch_input_socket = 0
+                                    print("input type float")
+                                else:
+                                    switch_input_socket = 0
                                 # toggle node
-                                switch_state = not node.inputs[1].default_value
-                                node.inputs[1].default_value = switch_state
+                                switch_state = not node.inputs[switch_input_socket].default_value
+                                node.inputs[switch_input_socket].default_value = switch_state
+                                print("switch_state: ", switch_state)
                                 # set pad led
                                 color_id = apc_mini_colors.blenderColorToAPCMiniColor(
                                                 node.color)
