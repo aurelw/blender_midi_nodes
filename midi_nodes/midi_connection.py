@@ -85,7 +85,7 @@ class MIDIConnection:
                 cid = msg.note
             with self.id_to_value_lock:
                 self.id_to_value[cid] = [msg.velocity]
-        if msg.type == 'note_off':
+        elif msg.type == 'note_off':
             ctrl_type = 'PAD'
             if self.encoding_mode == 'CHANNEL_AFTERTOUCH':
                 cid = msg.channel
@@ -113,11 +113,13 @@ class MIDIConnection:
             cid = msg.control + 100000
             with self.id_to_value_lock:
                 self.id_to_value[cid] = [msg.value]
+        else:
+            return
         # handle teaching mode
         if self._flag_get_teaching_pad:
             self._flag_get_teaching_pad = False
             self._teaching_pad = (cid, ctrl_type)
-        print("PAD ID:", cid)
+        print("PAD ID:", cid, " msg type:", msg.type)
 
 
     def _handle_note_on_evt_msg(self, msg):
@@ -133,6 +135,8 @@ class MIDIConnection:
                 else:
                     self.id_to_note_on_evt[cid] = [True]
                     # handle teaching mode
+        else:
+            return
         if self._flag_get_teaching_pad:
             self._flag_get_teaching_pad = False
             self._teaching_pad = (cid, 'PAD')
@@ -179,3 +183,4 @@ class MIDIConnection:
 
 midi_connection = MIDIConnection("MPD")
 midi_apc = MIDIConnection("APC mini", encoding_mode='NOTE', detect_mode='NOTE_ON_EVT')
+#midi_connection = MIDIConnection("S-1", encoding_mode='NOTE', detect_mode='VALUE')
