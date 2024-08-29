@@ -35,7 +35,7 @@ classes = [
 def pre_frame_change_handler(scn):
     midi_nodes.updateAllNodes()
     #FIXME
-    print("Update all drivers")
+    #print("Update all drivers")
     driver_utils.update_all_drivers()
 
 @persistent

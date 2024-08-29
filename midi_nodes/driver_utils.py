@@ -3,7 +3,7 @@ import bpy
 def update_drivers_on_animation_data(anim_data):
     """Hacky workaround to trigger driver update."""
     for driver in anim_data.drivers:
-        print("Update Driver")
+        #print("Update Driver")
         driver.driver.expression += " "
         driver.driver.expression = driver.driver.expression[:-1]
 
